@@ -412,63 +412,91 @@ What files or results the skill produces.</pre>
     </div>
     <div class="section-card-body">
 
-      <p>Follow these steps to create a working skill from scratch. The whole process takes under 10 minutes once you know what workflow you want to capture.</p>
+      <p>There are two great ways to build a skill — and both let Copilot do the heavy lifting. You don't need to write YAML by hand or manually set up folders. Just describe what you want, or let Copilot learn from what you already did together.</p>
 
-      <ol class="step-list">
-        <li>
-          <div class="step-body">
-            <strong>Identify a repeatable task</strong>
-            <p>Think of something you ask Copilot to do more than once — especially tasks with a consistent process but varying inputs. Good candidates: weekly reports, content generation from a template, data extraction, file conversions.</p>
-          </div>
-        </li>
-        <li>
-          <div class="step-body">
-            <strong>Create the skill folder</strong>
-            <p>Inside your skills directory, create a new subfolder named after your skill using lowercase-hyphenated naming:</p>
-            <pre><code>C:\Users\&lt;yourname&gt;\.copilot\skills\my-new-skill\</code></pre>
-          </div>
-        </li>
-        <li>
-          <div class="step-body">
-            <strong>Create SKILL.md in that folder</strong>
-            <p>Open VS Code, create a new file called <code>SKILL.md</code> inside your skill folder. Start with the frontmatter block.</p>
-            <pre><span class="cm">---</span>
-<span class="kw">name:</span> <span class="str">my-new-skill</span>
-<span class="kw">description:</span> <span class="str">&gt;</span>
-  <span class="str">Brief explanation of what the skill does. Use this skill when the user</span>
-  <span class="str">asks to [describe the task]. Also trigger when the user mentions</span>
-  <span class="str">"[phrase 1]", "[phrase 2]", or "[phrase 3]".</span>
-<span class="cm">---</span></pre>
-          </div>
-        </li>
-        <li>
-          <div class="step-body">
-            <strong>Write the skill body</strong>
-            <p>Below the frontmatter, write the full instructions. Be as detailed as you would if writing a procedure for a new colleague. Include prerequisites, step-by-step instructions, expected outputs, and any gotchas.</p>
-          </div>
-        </li>
-        <li>
-          <div class="step-body">
-            <strong>Verify the skill appears in Copilot</strong>
-            <p>Open Copilot Chat in VS Code. The skill list is visible in your agent customization configuration. You can also ask Copilot: <em>"What skills do you have?"</em> — it should list your new skill by its description.</p>
-          </div>
-        </li>
-        <li>
-          <div class="step-body">
-            <strong>Test it with a natural trigger phrase</strong>
-            <p>Ask something that matches your description. For example, if your description says <em>"Use this skill when the user asks to generate a weekly summary report"</em>, try asking: <em>"Can you generate the weekly summary report for me?"</em></p>
-          </div>
-        </li>
-        <li>
-          <div class="step-body">
-            <strong>Iterate and refine</strong>
-            <p>If Copilot doesn't invoke the skill reliably, expand the description with more trigger phrases. If it invokes but doesn't follow the steps correctly, clarify the body instructions. Skills improve with each revision.</p>
-          </div>
-        </li>
-      </ol>
+      <!-- Method 1 -->
+      <div class="sub-section">
+        <h3 style="display:flex;align-items:center;gap:10px;">
+          <span style="background:var(--va-blue);color:var(--white);font-size:0.78rem;font-weight:800;padding:3px 10px;border-radius:3px;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;">Method 1</span>
+          Just Tell Copilot What You Want to Automate
+        </h3>
+        <p>The simplest way to create a skill is to describe your goal in plain language and ask Copilot to build the skill files for you. You don't need to know the structure — Copilot handles it.</p>
 
-      <div class="tip-box">
-        <strong>&#10003; Pro tip:</strong> Run the task manually in chat first, then document exactly what worked into the SKILL.md. It's much easier to codify a process you've already proven than to write it from scratch.
+        <ol class="step-list">
+          <li>
+            <div class="step-body">
+              <strong>Open Copilot Chat and describe your workflow</strong>
+              <p>Tell Copilot what you're trying to accomplish. Be specific about inputs, outputs, tools involved, and how often you do it. Example:</p>
+              <pre><span class="str">"I want to create a skill that pulls the weekly Instagram metrics for
+@secvetaffairs using Playwright. It should ask me which method I want
+(direct links, one week, or one month), then scrape the reels and save
+results to a markdown file. Can you build the SKILL.md for this?"</span></pre>
+            </div>
+          </li>
+          <li>
+            <div class="step-body">
+              <strong>Let Copilot generate the SKILL.md</strong>
+              <p>Copilot will create the complete skill file — YAML frontmatter, trigger description, prerequisites, step-by-step instructions, and output format — based on what you described. Review it and ask for any adjustments.</p>
+            </div>
+          </li>
+          <li>
+            <div class="step-body">
+              <strong>Ask Copilot to save it to the right folder</strong>
+              <p>Tell Copilot to save the file to your skills directory:</p>
+              <pre><span class="str">"Save that as SKILL.md inside C:\Users\&lt;yourname&gt;\.copilot\skills\my-skill-name\"</span></pre>
+              <p>Copilot will create the folder and file for you.</p>
+            </div>
+          </li>
+          <li>
+            <div class="step-body">
+              <strong>Test it with a natural trigger phrase</strong>
+              <p>Start a new chat and ask something that matches your skill's purpose. Copilot should invoke it automatically. If it doesn't, ask Copilot to strengthen the trigger phrases in the description.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Method 2 -->
+      <div class="sub-section">
+        <h3 style="display:flex;align-items:center;gap:10px;">
+          <span style="background:var(--va-purple);color:var(--white);font-size:0.78rem;font-weight:800;padding:3px 10px;border-radius:3px;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;">Method 2</span>
+          Do the Work First, Then Turn the Chat Into a Skill
+        </h3>
+        <p>This method is ideal when you've already worked through a complex task with Copilot and want to preserve that exact process as a reusable skill. Copilot reviews the full conversation and distills it into a SKILL.md automatically.</p>
+
+        <ol class="step-list">
+          <li>
+            <div class="step-body">
+              <strong>Work through your task in Copilot Chat as normal</strong>
+              <p>Run the entire workflow — ask questions, iterate, fix issues, refine the output. Don't worry about documenting anything as you go. Just focus on getting the result right.</p>
+            </div>
+          </li>
+          <li>
+            <div class="step-body">
+              <strong>Once the task is complete, ask Copilot to create a skill from the chat</strong>
+              <p>At the end of the conversation, say something like:</p>
+              <pre><span class="str">"We just worked through this entire workflow together. Can you review
+everything we did in this chat and create a SKILL.md file that
+captures the full process so we can repeat it automatically in the future?"</span></pre>
+            </div>
+          </li>
+          <li>
+            <div class="step-body">
+              <strong>Copilot drafts the skill from the conversation history</strong>
+              <p>Copilot reads through what was done — the tools used, decisions made, files created, errors resolved — and writes a complete SKILL.md that reproduces that workflow. It will include the right trigger phrases, prerequisites, and step-by-step instructions based on what actually worked.</p>
+            </div>
+          </li>
+          <li>
+            <div class="step-body">
+              <strong>Review, refine, and save</strong>
+              <p>Read through the generated skill. Ask Copilot to adjust anything that's off — add edge cases you encountered, tweak the output format, or expand the trigger phrases. Then ask Copilot to save it to your skills folder.</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="tip-box" style="margin-top:18px;">
+          <strong>&#10003; Why this method works so well:</strong> The skill is built from a process that was already proven to work in your actual environment, with your actual tools and files. There's no guessing — Copilot is codifying something it already did successfully with you.
+        </div>
       </div>
 
     </div>
