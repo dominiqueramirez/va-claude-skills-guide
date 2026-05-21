@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Skills: Create Custom AI Workflows in VS Code</title>
+
+  <meta name="description" content="Learn how to create and use custom Claude Skills (SKILL.md files) with GitHub Copilot in VS Code to build reusable AI-powered workflows." />
+  <meta name="author" content="Department of Veterans Affairs" />
+
+  <style>
+    :root {
+      --va-navy: #112e51;
+      --va-blue: #205493;
+      --va-light-blue: #dce4ef;
+      --va-gold: #fdb81e;
+      --va-green: #2e8540;
+      --va-red: #cd2026;
+      --va-purple: #4c2c92;
+      --text-dark: #212121;
+      --text-mid: #494440;
+      --border: #d6d7d9;
+      --bg-light: #f5f5f5;
+      --white: #ffffff;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--text-dark);
+      background: var(--bg-light);
+    }
+
+    header { background: var(--va-navy); color: var(--white); padding: 0; }
+    .header-bar { background: var(--va-gold); height: 6px; }
+    .header-inner { max-width: 960px; margin: 0 auto; padding: 28px 24px 24px; }
+    .header-inner .badge {
+      display: inline-block;
+      background: var(--va-blue);
+      color: var(--white);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 3px;
+      margin-bottom: 10px;
+    }
+    header h1 { font-size: 2rem; font-weight: 700; line-height: 1.25; margin-bottom: 8px; }
+    header .subtitle { font-size: 1rem; color: #b9d3ee; max-width: 640px; }
+
+    .toc-strip { background: var(--va-blue); border-bottom: 3px solid var(--va-gold); }
+    .toc-strip-inner {
+      max-width: 960px; margin: 0 auto; padding: 12px 24px;
+      display: flex; flex-wrap: wrap; gap: 6px 20px;
+    }
+    .toc-strip-inner a { color: #dce9f6; font-size: 0.85rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
+    .toc-strip-inner a:hover { color: var(--va-gold); text-decoration: underline; }
+
+    main { max-width: 960px; margin: 0 auto; padding: 36px 24px 60px; }
+
+    .section-card { background: var(--white); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 32px; overflow: hidden; }
+    .section-card-header { background: var(--va-navy); color: var(--white); padding: 14px 22px; display: flex; align-items: center; gap: 12px; }
+    .section-card-header .step-num {
+      background: var(--va-gold); color: var(--va-navy);
+      font-size: 0.78rem; font-weight: 800; letter-spacing: 0.05em;
+      text-transform: uppercase; padding: 3px 9px; border-radius: 3px; white-space: nowrap;
+    }
+    .section-card-header h2 { font-size: 1.15rem; font-weight: 700; margin: 0; }
+    .section-card-body { padding: 22px 24px; }
+    .section-card-body p { margin-bottom: 14px; }
+    .section-card-body p:last-child { margin-bottom: 0; }
+
+    .sub-section { border-top: 1px solid var(--border); padding-top: 18px; margin-top: 18px; }
+    .sub-section:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+    .sub-section h3 { font-size: 1rem; font-weight: 700; color: var(--va-navy); margin-bottom: 10px; }
+
+    .cta-btn {
+      display: inline-block; background: var(--va-blue); color: var(--white);
+      font-size: 0.95rem; font-weight: 700; text-decoration: none;
+      padding: 11px 22px; border-radius: 4px; margin-top: 6px; margin-right: 8px; margin-bottom: 4px;
+      transition: background 0.15s;
+    }
+    .cta-btn:hover { background: var(--va-navy); color: var(--white); text-decoration: none; }
+    .cta-btn.secondary { background: var(--white); color: var(--va-blue); border: 2px solid var(--va-blue); }
+    .cta-btn.secondary:hover { background: var(--va-light-blue); color: var(--va-blue); }
+
+    .alert-box {
+      background: #fff8e6; border: 1px solid #f5c842; border-left: 4px solid var(--va-gold);
+      border-radius: 4px; padding: 14px 18px; margin-top: 14px; font-size: 0.92rem;
+    }
+    .alert-box strong { color: var(--va-navy); }
+
+    .tip-box {
+      background: #f0faf2; border: 1px solid #a8d5b0; border-left: 4px solid var(--va-green);
+      border-radius: 4px; padding: 14px 18px; margin-top: 14px; font-size: 0.92rem;
+    }
+    .tip-box strong { color: #1a5e20; }
+
+    /* Code blocks */
+    pre {
+      background: #1e1e2e; color: #cdd6f4; font-family: "Cascadia Code", "Consolas", monospace;
+      font-size: 0.88rem; line-height: 1.6; border-radius: 6px; padding: 18px 20px;
+      overflow-x: auto; margin: 14px 0;
+    }
+    code {
+      background: #eef1f6; color: var(--va-navy); font-family: "Cascadia Code", "Consolas", monospace;
+      font-size: 0.88em; padding: 2px 6px; border-radius: 3px;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* Syntax highlight colors */
+    .kw { color: #cba6f7; }   /* keywords / YAML keys */
+    .str { color: #a6e3a1; }  /* strings */
+    .cm { color: #6c7086; font-style: italic; }  /* comments */
+    .hl { color: #f9e2af; }   /* highlighted / special */
+    .hd { color: #89b4fa; }   /* headings */
+
+    /* Trouble items */
+    .trouble-item { border-left: 4px solid var(--va-red); background: #fdf3f3; border-radius: 0 4px 4px 0; padding: 14px 18px; margin-bottom: 14px; }
+    .trouble-item h4 { font-size: 0.95rem; font-weight: 700; color: var(--va-red); margin-bottom: 6px; }
+    .trouble-item p { font-size: 0.9rem; margin-bottom: 6px; }
+    .trouble-item p:last-child { margin-bottom: 0; }
+
+    /* Skill example cards */
+    .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px; }
+    .skill-card { border: 1px solid var(--border); border-left: 4px solid var(--va-purple); border-radius: 4px; padding: 18px 20px; background: #f9f9fd; }
+    .skill-card h4 { font-size: 0.97rem; font-weight: 700; color: var(--va-navy); margin-bottom: 6px; }
+    .skill-card .trigger-list { font-size: 0.85rem; color: var(--text-mid); margin-top: 8px; }
+    .skill-card .trigger-list span { display: inline-block; background: var(--va-light-blue); color: var(--va-blue); font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 12px; margin: 2px 2px 2px 0; }
+
+    /* Step list */
+    .step-list { list-style: none; padding: 0; margin: 0; counter-reset: steps; }
+    .step-list li { counter-increment: steps; display: flex; gap: 16px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .step-list li:last-child { border-bottom: none; }
+    .step-list li::before {
+      content: counter(steps);
+      flex-shrink: 0; width: 30px; height: 30px; background: var(--va-blue); color: var(--white);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.9rem; margin-top: 2px;
+    }
+    .step-list li .step-body strong { display: block; font-size: 0.97rem; color: var(--va-navy); margin-bottom: 4px; }
+    .step-list li .step-body p { font-size: 0.9rem; color: var(--text-mid); margin-bottom: 6px; }
+    .step-list li .step-body p:last-child { margin-bottom: 0; }
+
+    /* Best practices grid */
+    .bp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
+    .bp-card { border: 1px solid var(--border); border-top: 4px solid var(--va-blue); border-radius: 4px; padding: 16px 18px; background: #f9fbfd; }
+    .bp-card h4 { font-size: 0.93rem; font-weight: 700; color: var(--va-navy); margin-bottom: 6px; }
+    .bp-card p { font-size: 0.87rem; color: var(--text-mid); margin: 0; }
+
+    /* Checklist */
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .checklist li:last-child { border-bottom: none; }
+    .check-icon { flex-shrink: 0; width: 28px; height: 28px; background: var(--va-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+    .check-icon svg { width: 14px; height: 14px; fill: var(--white); }
+    .checklist .check-body strong { display: block; font-size: 0.97rem; color: var(--va-navy); margin-bottom: 4px; }
+    .checklist .check-body span { font-size: 0.85rem; color: var(--text-mid); }
+
+    footer { background: var(--va-navy); color: #9fb6cc; font-size: 0.82rem; text-align: center; padding: 20px 24px; }
+    footer a { color: var(--va-gold); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    a { color: var(--va-blue); }
+    a:hover { color: var(--va-navy); }
+
+    ul.body-list { padding-left: 22px; margin: 10px 0; }
+    ul.body-list li { margin-bottom: 6px; font-size: 0.93rem; }
+
+    @media (max-width: 640px) {
+      header h1 { font-size: 1.4rem; }
+      .skill-grid, .bp-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="header-bar"></div>
+  <div class="header-inner">
+    <span class="badge">VA Internal Training</span>
+    <h1>Claude Skills in VS Code<br>Build Custom AI Workflows with SKILL.md</h1>
+    <p class="subtitle">A practical guide to creating, structuring, and invoking custom skills that teach GitHub Copilot to handle specialized, repeatable tasks.</p>
+  </div>
+</header>
+
+<!-- ══ QUICK NAV ══ -->
+<nav class="toc-strip" aria-label="Page sections">
+  <div class="toc-strip-inner">
+    <a href="#what-are-skills">1&nbsp;What Are Skills?</a>
+    <a href="#file-structure">2&nbsp;File Structure</a>
+    <a href="#creating">3&nbsp;Creating a Skill</a>
+    <a href="#triggers">4&nbsp;Triggers &amp; Invocation</a>
+    <a href="#examples">5&nbsp;Real Examples</a>
+    <a href="#best-practices">6&nbsp;Best Practices</a>
+    <a href="#troubleshooting">7&nbsp;Troubleshooting</a>
+    <a href="#checklist">Quick Checklist</a>
+  </div>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<main>
+
+  <!-- Intro -->
+  <div style="background:var(--white);border:1px solid var(--border);border-radius:6px;padding:22px 24px;margin-bottom:32px;">
+    <p>A <strong>Skill</strong> is a <code>SKILL.md</code> file that packages domain knowledge, step-by-step instructions, and invocation triggers into a reusable workflow for GitHub Copilot. Instead of re-explaining the same task every session, you write it once in a SKILL.md file — and Copilot automatically recognizes when to use it based on what you ask.</p>
+    <p style="margin-top:12px;">Skills work inside <strong>VS Code with GitHub Copilot Chat</strong>. They live in a designated skills folder and are loaded into Copilot's context automatically. This guide walks you through everything from creating your first skill to writing production-ready skill files.</p>
+  </div>
+
+  <!-- ── Section 1: What Are Skills? ── -->
+  <div class="section-card" id="what-are-skills">
+    <div class="section-card-header">
+      <span class="step-num">Section 1</span>
+      <h2>What Are Skills?</h2>
+    </div>
+    <div class="section-card-body">
+
+      <div class="sub-section">
+        <h3>The Core Idea</h3>
+        <p>Skills are <strong>instruction files that teach Copilot a specialized workflow</strong>. Each skill lives in its own subfolder and contains a <code>SKILL.md</code> file — a markdown document with a YAML header (frontmatter) that tells Copilot <em>when</em> to use it, and a markdown body that tells Copilot <em>how</em> to execute it.</p>
+        <p>Think of a skill as a standing operating procedure (SOP) baked directly into your AI assistant. Once written, you never have to repeat those instructions again — just ask naturally, and Copilot reads and follows the skill automatically.</p>
+      </div>
+
+      <div class="sub-section">
+        <h3>What Skills Are Good For</h3>
+        <ul class="body-list">
+          <li><strong>Repeatable multi-step workflows</strong> — tasks you do weekly or monthly (e.g., pull Instagram metrics, generate a clip guide from an interview)</li>
+          <li><strong>Domain-specific knowledge</strong> — context Copilot wouldn't otherwise have (e.g., your team's file naming conventions, VA-specific tools, internal URLs)</li>
+          <li><strong>Tasks with consistent inputs and outputs</strong> — skills shine when the process is predictable even if the data changes</li>
+          <li><strong>Automations using external tools</strong> — Playwright, ffmpeg, Python scripts, Node.js — skills can instruct Copilot to invoke any tool available on your system</li>
+        </ul>
+      </div>
+
+      <div class="sub-section">
+        <h3>How Skills Differ from Regular Chat</h3>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+            <thead>
+              <tr style="background:var(--va-navy);color:var(--white);">
+                <th style="padding:10px 14px;text-align:left;">Regular Chat</th>
+                <th style="padding:10px 14px;text-align:left;">Skills</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:#f9fbfd;">
+                <td style="padding:10px 14px;border-bottom:1px solid var(--border);">You re-explain the task every session</td>
+                <td style="padding:10px 14px;border-bottom:1px solid var(--border);">Instructions are written once and reused forever</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 14px;border-bottom:1px solid var(--border);">Copilot improvises based on general knowledge</td>
+                <td style="padding:10px 14px;border-bottom:1px solid var(--border);">Copilot follows your exact documented process</td>
+              </tr>
+              <tr style="background:#f9fbfd;">
+                <td style="padding:10px 14px;border-bottom:1px solid var(--border);">Context is lost when the conversation ends</td>
+                <td style="padding:10px 14px;border-bottom:1px solid var(--border);">Knowledge is persistent — stored in a file</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 14px;">Results vary with prompt phrasing</td>
+                <td style="padding:10px 14px;">Results are consistent — same process every time</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <h3>Where Skills Live</h3>
+        <p>Skills are stored in a folder configured in your VS Code settings. At VA, the default location is:</p>
+        <pre><code>C:\Users\&lt;yourname&gt;\.copilot\skills\
+  instagram-metrics\
+    SKILL.md
+  secva-clip-finder\
+    SKILL.md
+  secva-quote-clipper\
+    SKILL.md</code></pre>
+        <p>Each skill gets its own subfolder. The subfolder name is just for organization — Copilot reads the <code>SKILL.md</code> file inside it.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Section 2: File Structure ── -->
+  <div class="section-card" id="file-structure">
+    <div class="section-card-header">
+      <span class="step-num">Section 2</span>
+      <h2>Skill File Structure</h2>
+    </div>
+    <div class="section-card-body">
+
+      <div class="sub-section">
+        <h3>Anatomy of a SKILL.md</h3>
+        <p>Every <code>SKILL.md</code> file has two parts: a <strong>YAML frontmatter block</strong> at the top (between <code>---</code> markers), and a <strong>markdown body</strong> below it.</p>
+
+        <pre><span class="cm">---  ← frontmatter starts here</span>
+<span class="kw">name:</span> <span class="str">my-skill-name</span>
+<span class="kw">description:</span> <span class="str">&gt;</span>
+  <span class="str">Describe what this skill does and WHEN Copilot should use it.</span>
+  <span class="str">Be explicit about trigger phrases: "Use this skill when the user</span>
+  <span class="str">asks to...", "Also trigger when the user mentions..."</span>
+<span class="kw">argument-hint:</span> <span class="str">'Optional hint shown to user, e.g. "Which account?"'</span>
+<span class="cm">---  ← frontmatter ends here</span>
+
+<span class="hd"># Skill Title</span>
+
+A short summary of what this skill does.
+
+<span class="hd">## Prerequisites</span>
+What tools, files, or environment variables must exist before running.
+
+<span class="hd">## Step-by-step Instructions</span>
+The detailed workflow Copilot should follow.
+
+<span class="hd">## Output</span>
+What files or results the skill produces.</pre>
+      </div>
+
+      <div class="sub-section">
+        <h3>The Frontmatter Fields</h3>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+            <thead>
+              <tr style="background:var(--va-navy);color:var(--white);">
+                <th style="padding:10px 14px;text-align:left;">Field</th>
+                <th style="padding:10px 14px;text-align:left;">Required?</th>
+                <th style="padding:10px 14px;text-align:left;">Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:#f9fbfd;">
+                <td style="padding:10px 14px;border-bottom:1px solid var(--border);"><code>name</code></td>
+                <td style="padding:10px 14px;border-bottom:1px solid var(--border);">Yes</td>
+                <td style="padding:10px 14px;border-bottom:1px solid var(--border);">Internal identifier for the skill (lowercase, hyphens)</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 14px;border-bottom:1px solid var(--border);"><code>description</code></td>
+                <td style="padding:10px 14px;border-bottom:1px solid var(--border);">Yes — most important field</td>
+                <td style="padding:10px 14px;border-bottom:1px solid var(--border);">Tells Copilot WHEN to invoke this skill. Must include trigger phrases.</td>
+              </tr>
+              <tr style="background:#f9fbfd;">
+                <td style="padding:10px 14px;"><code>argument-hint</code></td>
+                <td style="padding:10px 14px;">Optional</td>
+                <td style="padding:10px 14px;">A short prompt shown to the user asking for any required input</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="alert-box" style="margin-top:16px;">
+          <strong>&#9888; The description field is the trigger.</strong> Copilot uses semantic similarity to match your request against every skill's description. The more specific and natural-language your description is — with real phrases like <em>"Use this skill when someone asks to pull reel views"</em> — the more reliably Copilot will invoke it.
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <h3>The Markdown Body</h3>
+        <p>After the frontmatter, write the skill as you would any detailed SOP or how-to document. Use headings, bullet lists, code blocks, and tables freely. Copilot reads the entire file as instructions.</p>
+        <p>Good sections to include in the body:</p>
+        <ul class="body-list">
+          <li><strong>Prerequisites</strong> — what must be installed, what files must exist, what credentials are needed</li>
+          <li><strong>Required User Input</strong> — questions Copilot should ask the user before starting</li>
+          <li><strong>Step-by-step workflow</strong> — numbered steps in the exact order Copilot should follow them</li>
+          <li><strong>Folder &amp; File Structure</strong> — where outputs go, naming conventions</li>
+          <li><strong>Output / What This Produces</strong> — so the user knows what to expect</li>
+          <li><strong>Edge Cases &amp; Notes</strong> — anything that commonly goes wrong or requires special handling</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Section 3: Creating a Skill ── -->
+  <div class="section-card" id="creating">
+    <div class="section-card-header">
+      <span class="step-num">Section 3</span>
+      <h2>Creating Your First Skill</h2>
+    </div>
+    <div class="section-card-body">
+
+      <p>Follow these steps to create a working skill from scratch. The whole process takes under 10 minutes once you know what workflow you want to capture.</p>
+
+      <ol class="step-list">
+        <li>
+          <div class="step-body">
+            <strong>Identify a repeatable task</strong>
+            <p>Think of something you ask Copilot to do more than once — especially tasks with a consistent process but varying inputs. Good candidates: weekly reports, content generation from a template, data extraction, file conversions.</p>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <strong>Create the skill folder</strong>
+            <p>Inside your skills directory, create a new subfolder named after your skill using lowercase-hyphenated naming:</p>
+            <pre><code>C:\Users\&lt;yourname&gt;\.copilot\skills\my-new-skill\</code></pre>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <strong>Create SKILL.md in that folder</strong>
+            <p>Open VS Code, create a new file called <code>SKILL.md</code> inside your skill folder. Start with the frontmatter block.</p>
+            <pre><span class="cm">---</span>
+<span class="kw">name:</span> <span class="str">my-new-skill</span>
+<span class="kw">description:</span> <span class="str">&gt;</span>
+  <span class="str">Brief explanation of what the skill does. Use this skill when the user</span>
+  <span class="str">asks to [describe the task]. Also trigger when the user mentions</span>
+  <span class="str">"[phrase 1]", "[phrase 2]", or "[phrase 3]".</span>
+<span class="cm">---</span></pre>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <strong>Write the skill body</strong>
+            <p>Below the frontmatter, write the full instructions. Be as detailed as you would if writing a procedure for a new colleague. Include prerequisites, step-by-step instructions, expected outputs, and any gotchas.</p>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <strong>Verify the skill appears in Copilot</strong>
+            <p>Open Copilot Chat in VS Code. The skill list is visible in your agent customization configuration. You can also ask Copilot: <em>"What skills do you have?"</em> — it should list your new skill by its description.</p>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <strong>Test it with a natural trigger phrase</strong>
+            <p>Ask something that matches your description. For example, if your description says <em>"Use this skill when the user asks to generate a weekly summary report"</em>, try asking: <em>"Can you generate the weekly summary report for me?"</em></p>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <strong>Iterate and refine</strong>
+            <p>If Copilot doesn't invoke the skill reliably, expand the description with more trigger phrases. If it invokes but doesn't follow the steps correctly, clarify the body instructions. Skills improve with each revision.</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="tip-box">
+        <strong>&#10003; Pro tip:</strong> Run the task manually in chat first, then document exactly what worked into the SKILL.md. It's much easier to codify a process you've already proven than to write it from scratch.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Section 4: Triggers ── -->
+  <div class="section-card" id="triggers">
+    <div class="section-card-header">
+      <span class="step-num">Section 4</span>
+      <h2>Triggers &amp; Invocation</h2>
+    </div>
+    <div class="section-card-body">
+
+      <div class="sub-section">
+        <h3>How Copilot Decides to Use a Skill</h3>
+        <p>When you send a message in Copilot Chat, Copilot compares your message against every available skill's <code>description</code> field using <strong>semantic similarity</strong> — it's not keyword matching, it's meaning matching. If your message is sufficiently similar to a skill's description, Copilot reads and follows that skill's instructions.</p>
+        <p>This means your description should:</p>
+        <ul class="body-list">
+          <li>Describe the real-world task in plain language</li>
+          <li>Include explicit "Use this skill when..." and "Also trigger when..." sentences</li>
+          <li>List the actual phrases a user would naturally say</li>
+          <li>Mention specific proper nouns — account names, tool names, product names — that only appear in this context</li>
+        </ul>
+      </div>
+
+      <div class="sub-section">
+        <h3>Writing Effective Trigger Language</h3>
+        <p>Compare these two descriptions for the same skill:</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px;">
+          <div style="border:1px solid var(--va-red);border-top:4px solid var(--va-red);border-radius:4px;padding:16px 18px;background:#fdf3f3;">
+            <div style="font-weight:700;color:var(--va-red);font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">&#10005; Weak — Too vague</div>
+            <p style="font-size:0.88rem;color:var(--text-dark);">Gathers metrics from social media accounts.</p>
+          </div>
+          <div style="border:1px solid var(--va-green);border-top:4px solid var(--va-green);border-radius:4px;padding:16px 18px;background:#f0faf2;">
+            <div style="font-weight:700;color:#1a5e20;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">&#10003; Strong — Specific and trigger-rich</div>
+            <p style="font-size:0.88rem;color:var(--text-dark);">Gather Instagram reel metrics (views, likes, comments, shares) from VA Instagram accounts using Playwright. Use this skill when someone asks to check Instagram metrics, pull reel views, get reel stats, or run a monthly reel report for @secvetaffairs or @deptvetaffairs.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <h3>Invocation via Copilot Chat</h3>
+        <p>You don't need a special command or <code>@skill</code> syntax. Just ask naturally in Copilot Chat. Examples that successfully trigger skills:</p>
+        <pre><span class="cm"># triggers instagram-metrics skill</span>
+<span class="str">"Can you pull the Instagram metrics for @secvetaffairs this week?"</span>
+
+<span class="cm"># triggers secva-clip-finder skill</span>
+<span class="str">"I need a clip list from this transcript — find all the quotable moments"</span>
+
+<span class="cm"># triggers secva-quote-clipper skill</span>
+<span class="str">"Extract clips from this interview video and generate social media captions"</span></pre>
+
+        <div class="alert-box">
+          <strong>&#9432; Skills are not invoked from the terminal or command palette.</strong> They only work through <strong>Copilot Chat</strong> in VS Code (the chat panel, not inline completions). Open it with <kbd>Ctrl+Alt+I</kbd> or click the Copilot icon in the sidebar.
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <h3>Checking Which Skills Are Loaded</h3>
+        <p>To see all skills currently available to Copilot, ask in chat:</p>
+        <pre><span class="str">"What skills do you have available?"</span></pre>
+        <p>Copilot will list all skills it can see along with their descriptions. If a skill is missing from the list, check that the folder path is correct and that the frontmatter is valid YAML.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Section 5: Real Examples ── -->
+  <div class="section-card" id="examples">
+    <div class="section-card-header">
+      <span class="step-num">Section 5</span>
+      <h2>Real Skill Examples</h2>
+    </div>
+    <div class="section-card-body">
+      <p>These are production skills currently in use at VA. Each demonstrates a different type of workflow a skill can automate.</p>
+
+      <div class="skill-grid">
+
+        <div class="skill-card">
+          <h4>&#128247; instagram-metrics</h4>
+          <p style="font-size:0.88rem;color:var(--text-mid);margin:8px 0;">Gathers reel views, likes, comments, and shares from VA Instagram accounts using Playwright. Supports three methods: direct links, one week, or one month of reels.</p>
+          <div class="trigger-list">
+            <strong style="font-size:0.78rem;display:block;margin-bottom:4px;color:var(--va-navy);">Trigger phrases:</strong>
+            <span>check Instagram metrics</span>
+            <span>pull reel views</span>
+            <span>monthly reel report</span>
+            <span>weekly reel report</span>
+            <span>@secvetaffairs stats</span>
+          </div>
+        </div>
+
+        <div class="skill-card">
+          <h4>&#9986; secva-clip-finder</h4>
+          <p style="font-size:0.88rem;color:var(--text-mid);margin:8px 0;">Analyzes a Secretary Collins transcript to identify every quotable moment, then generates a clip guide with YouTube timestamp links, per-clip SRT files, and social media captions.</p>
+          <div class="trigger-list">
+            <strong style="font-size:0.78rem;display:block;margin-bottom:4px;color:var(--va-navy);">Trigger phrases:</strong>
+            <span>find the clips</span>
+            <span>clip list</span>
+            <span>cut sheet</span>
+            <span>quotable moments</span>
+            <span>what should I clip</span>
+          </div>
+        </div>
+
+        <div class="skill-card">
+          <h4>&#127909; secva-quote-clipper</h4>
+          <p style="font-size:0.88rem;color:var(--text-mid);margin:8px 0;">Finds quotable moments in a video file + transcript, cuts them as individual .mp4 clips using ffmpeg, and generates a clip guide with social media captions.</p>
+          <div class="trigger-list">
+            <strong style="font-size:0.78rem;display:block;margin-bottom:4px;color:var(--va-navy);">Trigger phrases:</strong>
+            <span>extract clips</span>
+            <span>pull soundbites</span>
+            <span>cut highlights</span>
+            <span>social clips</span>
+            <span>clip the interview</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="sub-section">
+        <h3>Minimal Working Example</h3>
+        <p>Here's the smallest valid skill you can write and have working in under 5 minutes:</p>
+        <pre><span class="cm">---</span>
+<span class="kw">name:</span> <span class="str">weekly-status-report</span>
+<span class="kw">description:</span> <span class="str">&gt;</span>
+  <span class="str">Generate a weekly status report in markdown format. Use this skill when</span>
+  <span class="str">the user asks to "write the weekly status", "generate a status report",</span>
+  <span class="str">"draft the weekly update", or "create a status summary".</span>
+<span class="cm">---</span>
+
+<span class="hd"># Weekly Status Report Generator</span>
+
+Ask the user for the following before generating the report:
+1. What did you accomplish this week?
+2. What is blocked or pending?
+3. What are your priorities for next week?
+
+Then produce a markdown document with:
+- A header with the current date
+- Three sections: Accomplishments, Blockers, Next Week Priorities
+- Bullet points under each section
+- Save as `status-YYYY-MM-DD.md` in the current workspace folder</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Section 6: Best Practices ── -->
+  <div class="section-card" id="best-practices">
+    <div class="section-card-header">
+      <span class="step-num">Section 6</span>
+      <h2>Best Practices</h2>
+    </div>
+    <div class="section-card-body">
+
+      <div class="bp-grid">
+
+        <div class="bp-card">
+          <h4>&#128269; Write descriptions like a search query</h4>
+          <p>The description is matched against your natural language request. Write it to include the actual phrases you'll use, including synonyms and alternate phrasings.</p>
+        </div>
+
+        <div class="bp-card">
+          <h4>&#127919; Keep each skill focused</h4>
+          <p>One skill = one workflow. Don't combine unrelated tasks into a single SKILL.md. A focused skill is easier to maintain and more reliably invoked.</p>
+        </div>
+
+        <div class="bp-card">
+          <h4>&#128196; Document prerequisites explicitly</h4>
+          <p>Always list every tool, file, credential, or environment variable the skill needs. If a prerequisite is missing, Copilot should tell the user rather than silently fail.</p>
+        </div>
+
+        <div class="bp-card">
+          <h4>&#128257; Use consistent output conventions</h4>
+          <p>Define file naming conventions, folder structures, and output formats in the skill. Consistency makes outputs predictable and easier to manage over time.</p>
+        </div>
+
+        <div class="bp-card">
+          <h4>&#129300; Ask before assuming</h4>
+          <p>If the skill needs user input (e.g., date range, account name, file path), add a "Required User Input" section and instruct Copilot to ask before starting.</p>
+        </div>
+
+        <div class="bp-card">
+          <h4>&#9888;&#65039; Never hardcode secrets</h4>
+          <p>SKILL.md files may be version-controlled or shared. Never put passwords, API keys, or tokens inside a skill file. Use environment variables or prompt the user to provide them at runtime.</p>
+        </div>
+
+        <div class="bp-card">
+          <h4>&#128196; Version your skills</h4>
+          <p>Keep your skills folder in a git repository. This gives you a history of changes and lets you roll back a skill if an update breaks it.</p>
+        </div>
+
+        <div class="bp-card">
+          <h4>&#129520; Test with varied phrasing</h4>
+          <p>After writing a skill, test it with 3–5 different phrasings of the same request. If some don't trigger the skill, add those phrases to the description field.</p>
+        </div>
+
+        <div class="bp-card">
+          <h4>&#128218; Write for a new user</h4>
+          <p>Write the skill body as if explaining to a new team member who has never done the task. Include context, rationale, and expected outputs — not just steps.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Section 7: Troubleshooting ── -->
+  <div class="section-card" id="troubleshooting">
+    <div class="section-card-header">
+      <span class="step-num">Section 7</span>
+      <h2>Troubleshooting</h2>
+    </div>
+    <div class="section-card-body">
+
+      <div class="trouble-item">
+        <h4>Copilot isn't using my skill — it ignores it entirely</h4>
+        <p><strong>Most likely cause:</strong> The description doesn't match your phrasing closely enough.</p>
+        <p><strong>Fix:</strong> Open the SKILL.md and add explicit "Use this skill when the user says..." lines with the exact phrasing you used. Save the file and try again.</p>
+        <p><strong>Also check:</strong> The SKILL.md is inside a subfolder of your skills directory — not directly in the skills root. The skills folder path must be correctly configured in VS Code settings.</p>
+      </div>
+
+      <div class="trouble-item">
+        <h4>Copilot says it doesn't see any skills</h4>
+        <p><strong>Fix:</strong> Verify the skills folder path in your VS Code settings. Open settings (<kbd>Ctrl+,</kbd>), search for <code>copilot skills</code> or check <code>.vscode/settings.json</code> for the skills directory path. The path must point to the folder <em>containing</em> the individual skill subfolders.</p>
+      </div>
+
+      <div class="trouble-item">
+        <h4>Copilot picks the wrong skill</h4>
+        <p><strong>Cause:</strong> Two skill descriptions are too similar — Copilot is picking the wrong one based on similarity.</p>
+        <p><strong>Fix:</strong> Make each skill's description more specific. Add language that distinguishes it from the other: <em>"Use this skill (and NOT secva-quote-clipper) when the user wants to find clips from YouTube to record manually with OBS."</em></p>
+      </div>
+
+      <div class="trouble-item">
+        <h4>Skill is invoked but Copilot doesn't follow the steps</h4>
+        <p><strong>Fix:</strong> Restructure the skill body for clarity. Use numbered steps instead of paragraphs. Break complex steps into sub-steps. Add explicit "Before proceeding, ask the user..." instructions where input is needed. The more imperative and explicit the language, the better.</p>
+      </div>
+
+      <div class="trouble-item">
+        <h4>YAML frontmatter errors</h4>
+        <p><strong>Cause:</strong> Invalid YAML syntax in the frontmatter block prevents Copilot from reading the skill.</p>
+        <p><strong>Fix:</strong> Ensure the frontmatter opens and closes with <code>---</code> on its own line. For multi-line descriptions, use the YAML block scalar format (<code>description: &gt;</code>) with the text indented by two spaces. Avoid tabs — use spaces only.</p>
+      </div>
+
+      <div class="trouble-item">
+        <h4>Skill works in chat but not in agent mode</h4>
+        <p><strong>Note:</strong> Skills are designed for Copilot Chat. In agent mode, Copilot uses a different tool-selection mechanism. If you need a workflow in agent mode, consider using <code>.instructions.md</code> files or a <code>copilot-instructions.md</code> file in your workspace root instead.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Quick Checklist ── -->
+  <div class="section-card" id="checklist">
+    <div class="section-card-header">
+      <span class="step-num">Checklist</span>
+      <h2>Quick Skill Creation Checklist</h2>
+    </div>
+    <div class="section-card-body">
+      <ul class="checklist">
+
+        <li>
+          <div class="check-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>
+          </div>
+          <div class="check-body">
+            <strong>Identified a repeatable workflow worth automating</strong>
+            <span>Task you do weekly/monthly with consistent steps and varying data</span>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>
+          </div>
+          <div class="check-body">
+            <strong>Created a subfolder with the skill name</strong>
+            <span><code>C:\Users\&lt;yourname&gt;\.copilot\skills\my-skill-name\</code></span>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>
+          </div>
+          <div class="check-body">
+            <strong>Written YAML frontmatter with name and description</strong>
+            <span>Description includes "Use this skill when..." with real trigger phrases</span>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>
+          </div>
+          <div class="check-body">
+            <strong>Documented prerequisites, steps, and expected output</strong>
+            <span>Body is detailed enough that a new user could follow it independently</span>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>
+          </div>
+          <div class="check-body">
+            <strong>Tested with 3+ natural trigger phrases in Copilot Chat</strong>
+            <span>Skill is consistently invoked; results match expected output</span>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-icon" style="background:var(--va-navy);">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path fill="#fdb81e" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>
+          </div>
+          <div class="check-body">
+            <strong>Skill is live and working!</strong>
+            <span>Your workflow is now permanently automated. Copilot will use it every time.</span>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <p>Department of Veterans Affairs &mdash; GitHub Copilot Skills Training Guide &mdash; Internal Use Only</p>
+  <p style="margin-top:6px;">Questions about skills? Ask Copilot: <em>"What skills do you have available?"</em> or reach out in the <a href="https://teams.microsoft.com/l/channel/19:8VpVI7PrJX-zgpfBqWCL5GeAFJpgq6KvhnPh2WR3GD81%40thread.tacv2/General?groupId=be80977b-836f-4073-81b9-7d25433720d8&tenantId=e95f1b23-abaf-45ee-821d-b7ab251ab3bf" target="_blank" rel="noopener">GitHub Copilot Teams channel</a>.</p>
+</footer>
+
+</body>
+</html>
